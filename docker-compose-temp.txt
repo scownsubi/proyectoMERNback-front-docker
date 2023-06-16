@@ -1,0 +1,56 @@
+version: '3.4'
+
+services:
+  back:
+    build:
+      context: ./back
+      network: host
+      dockerfile: Dockerfile
+    image: backimageserver
+    container_name: backcontainerserver
+    command: /usr/src/app/node_modules/.bin/nodemon server.js
+    volumes:
+      - ./server/:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3200:3200"
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+  mongo:
+    image: mongo
+    volumes:
+      - data-volume:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+  front:
+    build:
+      context: ./front
+      network: host
+      dockerfile: Dockerfile
+    image: frontimage
+    stdin_open: true
+    container_name: frontcontainer
+    command: npm start
+    volumes:
+      - ./front/:/usr/app
+      - /usr/app/node_modules
+    depends_on:
+      - back
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
+networks:
+    app-network:
+        driver: bridge
+
+volumes:
+    data-volume:
+    node_modules:
+    web-root:
+      driver: local

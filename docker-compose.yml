@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  frontend: 
+    build:
+      context: ./front
+      network: host
+      dockerfile: Dockerfile   
+    image: frontend
+    container_name: frontcontainer
+    command: npm start
+    volumes:
+      - ./front/:/usr/app
+      - /usr/app/node_modules
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ./back
+      network: host
+      dockerfile: Dockerfile
+    image: backend
+    container_name: backcontainer
+    command: npm start
+    volumes:
+      - ./back/:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 3200:3200
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo
